@@ -15,10 +15,11 @@ pub struct VarData<'a> {
 
 pub enum Instruction {}
 
+/// Reference to a variable
 #[derive(Hash)]
 pub struct VarRef {
-    id: u32,   // The index into the
-    vers: u32, // The version of the variable
+    id: u32,      // Index into the VarTable
+    version: u32, // ID for name generation, to maintain SSA form
 }
 
 /// Table of variables
