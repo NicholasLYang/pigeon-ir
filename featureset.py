@@ -11,7 +11,7 @@ G = nx.Graph()
 # - print and input
 # - Conditionals
 # - loops
-# - native code generation
+# - Code generation target
 # - Scopes/Namspaces
 
 # Features included by default if available:
@@ -32,7 +32,8 @@ G.add_edges_from([
     ('conditionals', 'root'),
     ('functions', 'root'),
     ('scopes', 'root'),
-    ('native-codegen', 'root'),
+    ('codegen-target', 'root'),
+    ('native-codegen', 'codegen-target'),
 
 # Type System
     # Simple type system
@@ -61,41 +62,25 @@ G.add_edges_from([
     ('variadic-arguments', 'function-overloading'),
 
     # Classes
-    ('classes', 'comptime-type-info'), # C-style structs
+    ('classes', 'simple-type-system'), # C-style structs
     ('generic-classes', 'classes'), # C++-style templates, but symbolic, not textual
-    ('interfaces', 'classes'), # Java-style interfaces
+    ('generic-classes', 'comptime-type-info'),
+    ('interface-classes', 'classes'), # Java-style interfaces
     ('strict-generic-classes', 'generic-classes'), # Java-style generics
-    ('strict-generic-classes', 'interfaces'),
-    ('inheritance', 'interfaces'), # C++ style inheritance
-    ('inheritance', 'type-casting'),
-    ('associated-types', 'classes'),
-    ('associated-values', 'classes'),
-    ('associated-interface-types', 'interfaces'),
-    ('associated-interface-values', 'interfaces'),
+    ('strict-generic-classes', 'interface-classes'),
+    ('inheriting-classes', 'interface-classes'), # C++ style inheritance
+    ('inheriting-classes', 'type-casting'),
+    ('multiple-inheriting-classes', 'inheriting-classes'),
+    ('associated-class-types', 'classes'),
+    ('associated-class-values', 'classes'),
+    ('associated-interface-types', 'interface-classes'),
+    ('associated-interface-values', 'interface-classes'),
     ('anonymous-classes', 'classes'),
     ('tuples', 'classes'),
 
     # Enumerations
     ('algebraic-enums', 'simple-enums'),
     ('generic-enums', 'algebraic-enums'),
-
-    # Dynamic Types
-    ('any-type', 'dot-operator'),
-    ('any-type', 'type-casting'),
-    ('any-type', 'runtime-type-info'),
-    ('runtime-codegen', 'native-codegen'),
-    ('runtime-codegen', 'runtime-type-info'),
-    ('runtime-jit', 'runtime-codegen'),
-    ('runtime-advanced-codegen', 'runtime-codegen'),
-    ('runtime-advanced-codegen', 'interfaces'),
-    ('runtime-advanced-jit', 'runtime-advanced-codegen'),
-    ('runtime-type-construction', 'runtime-codegen'),
-    ('runtime-type-construction', 'classes'),
-    ('runtime-type-modification', 'runtime-type-construction'),
-    ('runtime-advanced-type-construction', 'runtime-type-construction'),
-    ('runtime-advanced-type-construction', 'interfaces'),
-    ('runtime-advanced-type-modification', 'runtime-type-modification'),
-    ('runtime-advanced-type-modification', 'interfaces'),
 
     # Advanced
     # ...
@@ -105,7 +90,7 @@ G.add_edges_from([
 # Control Flow
 
     ('while-loops', 'loops'),
-    ('iterables', 'interfaces'),
+    ('iterables', 'interface-classes'),
     ('for-loops', 'iterables'),
     ('goto', 'loops'),
     ('pattern-matching', 'simple-enums'),
@@ -115,13 +100,34 @@ G.add_edges_from([
 
 # Safety
 
-    ('managed-types', 'generic-classes'),
-    ('garbage-collection', 'managed-types'),
+    ('managed-types', 'classes'), # Garbage collection
 
 # Type System
 
-    ('extended-pointer-types', 'simple-type-system'),
-    ('extended-managed-types', 'managed-types'),
+    # Dynamic Types
+    ('any-type', 'dot-operator'),
+    ('any-type', 'type-casting'),
+    ('any-type', 'runtime-type-info'),
+    ('managed-any-type', 'managed-types'),
+    ('runtime-codegen', 'codegen-target'),
+    ('runtime-codegen', 'runtime-type-info'),
+    ('runtime-jit', 'runtime-codegen'),
+    ('runtime-jit', 'native-codegen'),
+    ('runtime-advanced-codegen', 'runtime-codegen'),
+    ('runtime-advanced-codegen', 'interface-classes'),
+    ('runtime-advanced-jit', 'runtime-advanced-codegen'),
+    ('runtime-advanced-jit', 'native-codegen'),
+    ('runtime-type-construction', 'runtime-codegen'),
+    ('runtime-type-construction', 'classes'),
+    ('runtime-type-modification', 'runtime-type-construction'),
+    ('runtime-advanced-type-construction', 'runtime-type-construction'),
+    ('runtime-advanced-type-construction', 'interface-classes'),
+    ('runtime-advanced-type-modification', 'runtime-type-modification'),
+    ('runtime-advanced-type-modification', 'interface-classes'),
+
+    # Additional Information for compiler passes
+    ('extended-pointer-types', 'simple-type-system'), # Const correctness, mutability
+    ('extended-managed-types', 'managed-types'), # Const correctness n stuff for managed types
 
 # Safety
 
