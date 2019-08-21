@@ -1,7 +1,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 
-G = nx.Graph()
+G = nx.DiGraph()
 
 # Required features:
 # - Simple type system: Signed and unsigned integers, floating points, characters, pointers, arrays, dynamic arrays
@@ -19,7 +19,7 @@ G = nx.Graph()
 # - Locks
 # - Threading
 
-G.add_edges_from([
+edges = [
 
 # Features are things that need to be enabled to be in the language at all. They're
 # orthogonal to "implicit behavior", which can be customized to the extent that
@@ -51,6 +51,7 @@ G.add_edges_from([
 # Introspection
     ('comptime-type-info', 'static-type-checking'),
     ('runtime-type-info', 'simple-type-system'), # `Type` object
+    ('runtime-namespace-info', 'runtime-type-info'), # Information about namespaces
 
 # Type System
 
@@ -62,30 +63,36 @@ G.add_edges_from([
     ('variadic-arguments', 'function-overloading'),
 
     # Classes
-    ('classes', 'simple-type-system'), # C-style structs
-    ('generic-classes', 'classes'), # C++-style templates, but symbolic, not textual
+    ('static-classes', 'static-type-checking'), # C-style structs
+    ('generic-classes', 'static-classes'), # C++-style templates, but symbolic, not textual
     ('generic-classes', 'comptime-type-info'),
-    ('interface-classes', 'classes'), # Java-style interfaces
+    ('interface-classes', 'static-classes'), # Java-style interfaces
     ('strict-generic-classes', 'generic-classes'), # Java-style generics
     ('strict-generic-classes', 'interface-classes'),
     ('inheriting-classes', 'interface-classes'), # C++ style inheritance
     ('inheriting-classes', 'type-casting'),
     ('multiple-inheriting-classes', 'inheriting-classes'),
-    ('associated-class-types', 'classes'),
-    ('associated-class-values', 'classes'),
+
+    # Type-checked values, like static values in Java
+    ('static-associated-class-types', 'static-classes'),
+    ('static-associated-class-values', 'static-classes'),
+
+    # Associated trait types in Rust
     ('associated-interface-types', 'interface-classes'),
     ('associated-interface-values', 'interface-classes'),
-    ('anonymous-classes', 'classes'),
-    ('tuples', 'classes'),
+
+    ('anonymous-classes', 'static-classes'),
+    ('tuples', 'static-classes'),
 
     # Enumerations
     ('algebraic-enums', 'simple-enums'),
     ('generic-enums', 'algebraic-enums'),
 
     # Advanced
-    # ...
     ('row-polymorphism', 'anonymous-classes'),
     ('row-polymorphism', 'static-type-checking'),
+
+        # native RAII-like support
 
 # Control Flow
 
@@ -94,40 +101,48 @@ G.add_edges_from([
     ('for-loops', 'iterables'),
     ('goto', 'loops'),
     ('pattern-matching', 'simple-enums'),
-    ('advanced-pattern-matching', 'pattern-matching'),
-    ('advanced-pattern-matching', 'algebraic-enums'),
-    ('capturing-functions', 'functions'),
+    ('advanced-pattern-matching', 'pattern-matching'), # Switch statements
+    ('advanced-pattern-matching', 'algebraic-enums'), # Rust-like matching
+    ('capturing-functions', 'functions'), # Lambdas
 
 # Safety
 
-    ('managed-types', 'classes'), # Garbage collection
+    ('managed-types', 'static-classes'), # Garbage collection
 
 # Type System
 
     # Dynamic Types
-    ('any-type', 'dot-operator'),
+    ('any-type', 'dot-operator'), # Simple 'any' type, using type info generated in the binary
     ('any-type', 'type-casting'),
-    ('any-type', 'runtime-type-info'),
+    ('any-type', 'comptime-type-info'),
+    ('managed-any-type', 'any-type'), # Any type with garbage collection
     ('managed-any-type', 'managed-types'),
-    ('runtime-codegen', 'codegen-target'),
+    ('managed-any-type', 'runtime-type-info'),
+
+# Runtime flexibility
+    ('dynamic-classes', 'any-type'),
+    ('runtime-codegen', 'codegen-target'), # Building simple functions runtime types
     ('runtime-codegen', 'runtime-type-info'),
+    ('runtime-code-modification', 'runtime-codegen'), # Things like altering functions
     ('runtime-jit', 'runtime-codegen'),
     ('runtime-jit', 'native-codegen'),
-    ('runtime-advanced-codegen', 'runtime-codegen'),
-    ('runtime-advanced-codegen', 'interface-classes'),
-    ('runtime-advanced-jit', 'runtime-advanced-codegen'),
-    ('runtime-advanced-jit', 'native-codegen'),
-    ('runtime-type-construction', 'runtime-codegen'),
-    ('runtime-type-construction', 'classes'),
-    ('runtime-type-modification', 'runtime-type-construction'),
-    ('runtime-advanced-type-construction', 'runtime-type-construction'),
-    ('runtime-advanced-type-construction', 'interface-classes'),
-    ('runtime-advanced-type-modification', 'runtime-type-modification'),
-    ('runtime-advanced-type-modification', 'interface-classes'),
+
+    # Constructing types at runtime
+    ('static-runtime-type-construction', 'runtime-codegen'),
+    ('static-runtime-type-construction', 'static-classes'),
+    ('static-runtime-type-modification', 'static-runtime-type-construction'),
+
+    # Constructing types at runtime
+    ('dynamic-runtime-type-construction', 'runtime-codegen'),
+    ('dynamic-runtime-type-construction', 'dynamic-classes'),
+    ('dynamic-runtime-type-modification', 'dynamic-runtime-type-construction'),
 
     # Additional Information for compiler passes
     ('extended-pointer-types', 'simple-type-system'), # Const correctness, mutability
     ('extended-managed-types', 'managed-types'), # Const correctness n stuff for managed types
+
+    # Python-like namespaces
+    ('dynamic-namespaces', 'runtime-namespace-info'),
 
 # Safety
 
@@ -136,14 +151,14 @@ G.add_edges_from([
 
 # Compile-time execution
 
-    ('comptime-conditionals', 'conditionals'),
-    ('comp-directives', 'simple-type-system'),
+    ('comp-directives', 'simple-type-system'), # Compiler directives
+    ('comptime-conditionals', 'conditionals'), # Static if
     ('comptime-conditionals', 'comp-directives'),
-    ('explicit-comptime-eval', 'comp-directives'),
-    ('explicit-comptime-const-eval', 'comptime-type-info'),
+    ('explicit-comptime-eval', 'comp-directives'), # Compile-time evaluation
+    ('explicit-comptime-const-eval', 'comptime-type-info'), # Compile-time constant evaluation
     ('hygenic-macros', 'comptime-type-info'),
     ('hygenic-macros', 'scopes'),
-    ('comptime-currying', 'comp-directives'),
+    ('comptime-currying', 'comp-directives'), # Compile-time function currying
 
 # Control Flow
 
@@ -161,13 +176,18 @@ G.add_edges_from([
 
 # Misc
 
-])
+]
 
-pos=nx.spring_layout(G)
+G.add_edges_from([(e[1], e[0]) for e in edges])
 
-nx.draw_networkx_nodes(G, pos)
-nx.draw_networkx_edges(G, pos)
-nx.draw_networkx_labels(G, pos, font_size=10)
+pos=nx.drawing.nx_agraph.graphviz_layout(G, prog='dot')
+
+nx.draw_networkx_nodes(G, pos, node_size=5)
+nx.draw_networkx_edges(G, pos, width=.5, node_size=5)
+text = nx.draw_networkx_labels(G, pos, font_size=8)
+
+for _,t in text.items():
+    t.set_rotation(30)
 
 plt.axis('off')
 plt.show()
