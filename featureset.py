@@ -19,6 +19,9 @@ G = nx.DiGraph()
 # - Locks
 # - Threading
 
+# A feature can only alter the semantics of its ancestors
+# Featureset must be have bounds known at compile-time
+
 edges = [
 
 # Features are things that need to be enabled to be in the language at all. They're
@@ -52,6 +55,12 @@ edges = [
     ('comptime-type-info', 'static-type-checking'),
     ('runtime-type-info', 'simple-type-system'), # `Type` object
     ('runtime-namespace-info', 'runtime-type-info'), # Information about namespaces
+    ('comptime-keyword-argument-hashtables', 'type-casting'), # Python-like arg dicts
+    ('comptime-keyword-argument-hashtables', 'comptime-type-info'),
+    ('comptime-positional-argument-arrays', 'type-casting'), # Python-like arg lists
+    ('comptime-positional-argument-arrays', 'comptime-type-info'),
+    # ('positional-argument-arrays', 'runtime-type-info'),
+    # ('keyword-argument-hashtables', 'runtime-type-info'),
 
 # Type System
 
@@ -96,7 +105,6 @@ edges = [
 
 # Control Flow
 
-    ('while-loops', 'loops'),
     ('iterables', 'interface-classes'),
     ('for-loops', 'iterables'),
     ('goto', 'loops'),
@@ -171,8 +179,8 @@ edges = [
 
 # Optimization and Intent Declaration
 
-    ('destructure-declaration', 'comp-directives'),
-    ('function-annotations', 'extended-pointer-types'),
+    ('destructure-declaration', 'comp-directives'), # If this object isn't passed out of the current scope, destructure it into its fields
+    ('function-annotations', 'extended-pointer-types'), # Extra metadata about function behavior
 
 # Misc
 
