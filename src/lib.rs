@@ -1,3 +1,3 @@
-mod ir;
-mod ir_data;
-mod scopes;
+pub mod ir;
+pub mod ir_data;
+pub mod scopes;

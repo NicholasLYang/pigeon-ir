@@ -1,6 +1,6 @@
 #[allow(dead_code)]
-
 // Eventually have actual types as well
+#[derive(Debug)]
 pub enum Type {
     /// Integral value
     Int64,
@@ -15,6 +15,7 @@ pub enum Type {
     },
 }
 
+#[derive(Debug)]
 pub enum Instruction {
     Add,
 }
